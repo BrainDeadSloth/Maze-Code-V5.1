@@ -1,0 +1,327 @@
+<style>
+    :root {
+      --cy: 0%;
+      --cx: 0%;
+      --sy: 0%;
+      --sx: 0%;
+      --ans1x: 0%;
+      --ans1y: 0%;
+      --ans2x: 0%;
+      --ans2y: 0%;
+      --ans3x: 0%;
+      --ans3y: 0%;
+      --ans4x: 0%;
+      --ans4y: 0%;
+      --ans5x: 0%;
+      --ans5y: 0%;
+      --ans6x: 0%;
+      --ans6y: 0%;
+    }
+    
+    .stop-scrolling {
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    .container {
+      position: relative;
+    {% if ??input_type?? has {1} then %}
+      width: 40%;
+    {% else %}
+      width: 60%;
+    {% endif %}
+      height: auto;
+    }
+    
+    /* Make the image to responsive */
+    .image {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    
+    /* The overlay effect - lays on top of the container and over the image */
+    .overlay {
+      position: absolute;
+      top: var(--cy);
+      left: var(--cx);
+      transition: .5s ease;
+    }
+    
+    .txt {
+    {% if ??input_type?? has {1} then %}
+      font-size: 0.75vw;
+    {% else %}
+      font-size: 1.5vw;
+    {% endif %}
+    }
+    
+    #start {
+      color: green;
+    {% if ??input_type?? has {1} then %}
+      font-size: 0.85vw;
+    {% else %}
+      font-size: 1.6vw;
+    {% endif %}
+      position: absolute;
+      top: var(--sy);
+      left: var(--sx);
+    }
+    
+    #ans1 {
+      position: absolute;
+      top: var(--ans1y);
+      left: var(--ans1x);
+    }
+    
+    #ans2 {
+      position: absolute;
+      top: var(--ans2y);
+      left: var(--ans2x);
+    }
+    
+    #ans3 {
+      position: absolute;
+      top: var(--ans3y);
+      left: var(--ans3x);
+    }
+    
+    #ans4 {
+      position: absolute;
+      top: var(--ans4y);
+      left: var(--ans4x);
+    }
+    
+    #ans5 {
+      position: absolute;
+      top: var(--ans5y);
+      left: var(--ans5x);
+    }
+    
+    #ans6 {
+      position: absolute;
+      top: var(--ans6y);
+      left: var(--ans6x);
+    }
+</style>
+    
+<center>
+    <button type="button" onclick="restart();">Restart Maze</button>
+    <br><br>
+    <div class="container" {% if ??input_type?? has {2} then %}ontouchstart="start(event)" ontouchmove="move(event)" ontouchend="end()"{% endif %}>
+    <img src="??ResPath??gridV2.png" alt="Avatar" class="image">
+    <div id="ans1" class="txt">!! Maze_Ans_Text4.responses[1].caption.tostring() !!</div>
+    <div id="ans2" class="txt">!! Maze_Ans_Text4.responses[2].caption.tostring() !!</div>
+    <div id="ans3" class="txt">!! Maze_Ans_Text4.responses[3].caption.tostring() !!</div>
+    <div id="ans4" class="txt">!! Maze_Ans_Text4.responses[4].caption.tostring() !!</div>
+    <div id="ans5" class="txt">!! Maze_Ans_Text4.responses[5].caption.tostring() !!</div>
+    <div id="ans6" class="txt">!! Maze_Ans_Text4.responses[6].caption.tostring() !!</div>
+    <img class="overlay" src="??ResPath??Facey_V2.png" style="width:7.5%; height: 7.5%;">
+    <div id="start"><b>Start</b></div>
+    </div>
+    <br>
+</center>
+    
+<script>
+    var highX = 8, highY = 08, lowX = 1, lowY = 01, YW = false, done = true, r = document.querySelector(':root');
+    
+    var inp = document.getElementsByTagName("input");
+    var numeric = inp[inp.length-1]
+    
+    var startX;
+    var startY;
+    
+    var xyp = [[1,01,2.5],[2,02,15],[3,03,27.5],[4,04,40.5],[5,05,52.5],[6,06,65],[7,07,77.5],[8,08,90]];
+    var ansxyp = [[1,01,'2.75%'],[2,02,'15%'],[3,03,'27.5%'],[4,04,'40.5%'],[5,05,'52.5%'],[6,06,'65%'],[7,07,'77.5%'],[8,08,'90%']];
+    var walls = [[[2,01],[2,02]],[[3,01],[4,01]],[[4,01],[5,01]],[[6,01],[6,02]],[[7,01],[8,01]],[[1,02],[2,02]],[[2,02],[2,03]],[[3,02],[3,03]],[[4,02],[5,02]],[[5,02],[5,03]],[[6,02],[6,03]],[[6,02],[7,02]],[[1,03],[2,03]],[[4,03],[4,04]],[[4,03],[5,03]],[[5,03],[5,04]],[[6,03],[7,03]],[[7,03],[8,03]],[[1,04],[1,05]],[[1,04],[2,04]],[[2,04],[3,04]],[[3,04],[3,05]],[[4,04],[4,05]],[[4,04],[5,04]],[[6,04],[6,05]],[[7,04],[8,04]],[[1,05],[2,05]],[[2,05],[2,06]],[[4,05],[4,06]],[[5,05],[5,06]],[[5,05],[6,05]],[[6,05],[7,05]],[[7,05],[7,06]],[[7,05],[8,05]],[[1,06],[2,06]],[[3,06],[3,07]],[[4,06],[4,07]],[[5,06],[5,07]],[[6,06],[6,07]],[[6,06],[7,06]],[[1,07],[2,07]],[[2,07],[2,08]],[[2,07],[3,07]],[[4,07],[4,08]],[[5,07],[6,07]],[[7,07],[7,08]],[[7,07],[8,07]],[[3,08],[4,08]],[[6,08],[7,08]]];
+    
+    var locat = [[4,01],[8,01],[2,02],[6,02],[5,03],[1,04],[4,04],[1,05],[6,05],[7,05],[2,07],[4,08],[7,08]];
+    
+    var sel = [[]];
+    var same = false;
+    
+    for (let i = 0; i < 7; i++) {
+      rand(i);
+    }
+    
+    function rand(i) {
+      same = false;
+      const random = Math.floor(Math.random() * locat.length);
+      for (let j = 0; j < sel.length; j++) {
+        if (locat[random] == sel[j]) {
+          same = true;
+        }
+      }
+      if (same == false) {
+        sel[i] = locat[random];
+      } else {
+        rand(i)
+      }
+    };
+    
+    for (let j = 0; j < xyp.length; j++) {
+      if (sel[6][0] == xyp[j][0]) {
+        r.style.setProperty('--cx', String(xyp[j][2])+'%');
+        r.style.setProperty('--sx', String(xyp[j][2])+'%');
+        startX = sel[6][0];
+      }
+      if (sel[6][1] == xyp[j][1]) {
+        r.style.setProperty('--cy', String(xyp[j][2])+'%');
+        r.style.setProperty('--sy', String(xyp[j][2]-2)+'%');
+        startY = sel[6][1];
+      }
+    }
+    
+    for (let i = 0; i < sel.length; i++) {
+      for (let j = 0; j < xyp.length; j++) {
+        if (sel[i][0] == xyp[j][0]) {
+          r.style.setProperty('--ans'+(i+1)+'x', ansxyp[j][2]);
+        }
+        if (sel[i][1] == xyp[j][1]) {
+          r.style.setProperty('--ans'+(i+1)+'y', String(xyp[j][2]+"%"));
+        }
+      }
+    }
+    
+    var curX = startX, curY = startY, nextX = startX, nextY = startY;
+    
+    {% if ??input_type?? has {1} then %}
+    document.onkeydown = function (e) {
+      var ascii =  e.keyCode;
+      if (ascii == 37 || ascii == 65 || ascii == 97) {
+        //left
+        nextX = curX - 1;
+        nextY = curY;
+        check()
+      } else if (ascii == 38 || ascii == 87 || ascii == 119) {
+        //up
+        nextY = curY - 1;
+        nextX = curX;
+        check()
+      } else if (ascii == 39 || ascii == 68 || ascii == 100) {
+        //right
+        nextX = curX + 1;
+        nextY = curY;
+        check()
+      } else if (ascii == 40 || ascii == 83 || ascii == 115) {
+        //down
+        nextY = curY + 1;
+        nextX = curX;
+        check()
+      }
+    };
+    {% else %}
+    var body = document.getElementsByTagName('body')[0];
+    
+    var touchX, touchY, moveX, moveY;
+    
+    function start(e) {
+      touchX = e.touches[0].clientX;
+      touchY = e.touches[0].clientY;
+    }
+    
+    function move(e) {
+      e.preventDefault();
+      moveX = e.touches[0].clientX;
+      moveY = e.touches[0].clientY;
+    }
+    
+    function end() {
+      var distX = Math.abs(touchX - moveX);
+      var distY = Math.abs(touchY - moveY);
+    
+      if (distX > distY) {
+        if (moveX > touchX) {
+    //right
+          nextX = curX + 1;
+          nextY = curY;
+          check();
+        } else {
+    //left
+          nextX = curX - 1;
+          nextY = curY;
+          check();
+        }
+      } else {
+        if (moveY > touchY) {
+    //down
+          nextY = curY + 1;
+          nextX = curX;
+          check();
+        } else {
+    //up
+          nextY = curY - 1;
+          nextX = curX;
+          check();
+        }
+      }
+    }
+    {% endif %}
+    
+    function check() {
+      if (done == true) {
+        done = false;
+        if (nextX > highX || nextX < lowX || nextY > highY || nextY < lowY) {
+          nextX = curX;
+          nextY = curY;
+          done = true;
+        } else {
+          for (let i = 0; i < walls.length; i++) {
+            if (curX == walls[i][0][0] && curY == walls[i][0][1]) {
+              if (nextX == walls[i][1][0] && nextY == walls[i][1][1]) {
+                YW = true;
+                done = true;
+                break;
+              }
+            } else if (curX == walls[i][1][0] && curY == walls[i][1][1]) {
+              if (nextX == walls[i][0][0] && nextY == walls[i][0][1]) {
+                YW = true;
+                done = true;
+                break;
+              }
+            } else {
+              YW = false;
+            }
+          }
+          if (YW == false) {
+            curX = nextX;
+            curY = nextY;
+            for (let i = 0; i < xyp.length; i++) {
+              if (xyp[i][0] == nextX) {
+                r.style.setProperty('--cx', String(xyp[i][2])+"%");
+              }
+              if (xyp[i][1] == nextY) {
+                r.style.setProperty('--cy', String(xyp[i][2])+"%");
+                done = true;
+              }
+            }
+            for (let i = 0; i < sel.length; i++) {
+              if (curX == sel[i][0] && curY == sel[i][1] && i != sel.length-1) {
+                numeric.value = i+1;
+                break;
+              } else {
+                numeric.value = '';
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    function restart() {
+      curX = startX;
+      curY = startY;
+      nextX = startX;
+      nextY = startY;
+      for (let i = 0; i < xyp.length; i++) {
+        if (xyp[i][0] == curX) {
+          r.style.setProperty('--cx', String(xyp[i][2])+"%");
+        }
+        if (xyp[i][1] == curY) {
+          r.style.setProperty('--cy', String(xyp[i][2])+"%");
+          done = true;
+        }
+      }
+    }
+    
+</script>
